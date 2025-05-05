@@ -1,0 +1,13 @@
+package org.mushroom.springbootcurrencyexchanger;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootCurrencyExchangerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootCurrencyExchangerApplication.class, args);
+    }
+
+}
