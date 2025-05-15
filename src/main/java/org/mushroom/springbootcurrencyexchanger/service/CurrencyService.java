@@ -1,45 +1,48 @@
 package org.mushroom.springbootcurrencyexchanger.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.CurrencyDto;
 import org.mushroom.springbootcurrencyexchanger.dto.NewCurrencyPayload;
 import org.mushroom.springbootcurrencyexchanger.entity.Currency;
 import org.mushroom.springbootcurrencyexchanger.repository.CurrencyRepository;
+import org.mushroom.springbootcurrencyexchanger.util.CurrencyValidator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CurrencyService {
 
     private final CurrencyRepository currencyRepository;
+    private final CurrencyValidator validator;
 
     public List<CurrencyDto> getAllCurrencies() {
-        return currencyRepository.findAll().stream().map(CurrencyDto::fromCurrency).collect(Collectors.toList());
+        return currencyRepository.findAll()
+                .stream()
+                .map(CurrencyDto::fromCurrency).toList();
     }
 
     public CurrencyDto getByCodeCurrency(String code) {
-        Currency currency = currencyRepository.findByCode(code).orElseThrow(() -> new EntityNotFoundException("Валюта с кодом " + code + " не найдена"));
+        validator.validateCode(code);
+        Currency currency = currencyRepository.findByCode(code)
+                .orElseThrow(() -> new EntityNotFoundException("Валюта с кодом " + code + " не найдена"));
         return CurrencyDto.fromCurrency(currency);
     }
 
     public void deleteCurrencyById(Long id) {
-        currencyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Валюта с id " + id + " не найдена"));
+        validator.validateId(id);
         currencyRepository.deleteById(id);
     }
 
-    public CurrencyDto updateCurrency(String idParam, NewCurrencyPayload payload) {
-        Long id = Long.parseLong(idParam);
-        Currency currency = currencyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Валюта с id " + id + " не найдена"));
-        currency.setCode(payload.getCode() != null ? payload.getCode() : currency.getCode());
-        currency.setFullName((payload.getFullName() != null ? payload.getFullName() : currency.getFullName()));
-        currency.setSign(payload.getSign() != null ? payload.getSign() : currency.getSign());
+    public CurrencyDto updateCurrency(Long id, NewCurrencyPayload payload) {
+        validator.validate(payload);
+        Currency currency = currencyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Валюта с id " + id + " не найдена"));
+        currency.setCode(payload.getCode());
+        currency.setFullName(payload.getFullName());
+        currency.setSign(payload.getSign());
         Currency updateCurrency = currencyRepository.save(currency);
         return CurrencyDto.fromCurrency(updateCurrency);
     }

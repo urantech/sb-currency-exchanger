@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/currency")
+@RequestMapping("api/currencies")
 @RequiredArgsConstructor
 public class CurrencyController extends HttpServlet {
     private final CurrencyService currencyService;
@@ -24,8 +24,8 @@ public class CurrencyController extends HttpServlet {
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<CurrencyDto> getCurrencyByCode(@PathVariable String code) {
-        return ResponseEntity.ok(currencyService.getByCodeCurrency(code));
+    public CurrencyDto getCurrencyByCode(@PathVariable String code) {
+        return currencyService.getByCodeCurrency(code);
     }
 
     @DeleteMapping("/{id}")
@@ -45,8 +45,13 @@ public class CurrencyController extends HttpServlet {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CurrencyDto> updateCurrency(
+    public CurrencyDto updateCurrency(
             @PathVariable Long id, @RequestBody NewCurrencyPayload payload) {
-        return ResponseEntity.ok(currencyService.updateCurrency(id.toString(), payload));
+        return currencyService.updateCurrency(id, payload);
+    }
+
+    @PatchMapping("/{id}")
+    public CurrencyDto patchCurrency(@PathVariable Long id, @RequestBody NewCurrencyPayload payload) {
+        return currencyService.updateCurrency(id, payload);
     }
 }
