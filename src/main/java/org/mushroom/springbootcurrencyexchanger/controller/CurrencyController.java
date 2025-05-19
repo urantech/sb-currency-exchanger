@@ -1,26 +1,23 @@
 package org.mushroom.springbootcurrencyexchanger.controller;
 
-import jakarta.servlet.http.HttpServlet;
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.CurrencyDto;
 import org.mushroom.springbootcurrencyexchanger.dto.NewCurrencyPayload;
+import org.mushroom.springbootcurrencyexchanger.dto.CurrencyForChange;
 import org.mushroom.springbootcurrencyexchanger.service.CurrencyService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/currencies")
 @RequiredArgsConstructor
-public class CurrencyController extends HttpServlet {
+public class CurrencyController {
     private final CurrencyService currencyService;
 
     @GetMapping
-    public ResponseEntity<List<CurrencyDto>> getAllCurrencies() {
-        return ResponseEntity.ok(currencyService.getAllCurrencies());
+    public List<CurrencyDto> getAllCurrencies() {
+        return currencyService.getAllCurrencies();
     }
 
     @GetMapping("/{code}")
@@ -29,29 +26,24 @@ public class CurrencyController extends HttpServlet {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCurrency(@PathVariable Long id) {
         currencyService.deleteCurrencyById(id);
     }
 
-    @PostMapping
-    public ResponseEntity<CurrencyDto> createCurrency(
-            @RequestBody NewCurrencyPayload payload, UriComponentsBuilder uriComponentsBuilder) {
-        CurrencyDto createCurrency = currencyService.createCurrency(payload);
-        return ResponseEntity.created(uriComponentsBuilder.path("api/currency/{code}")
-                        .build(createCurrency
-                                .getCode()))
-                .body(createCurrency);
+    @PostMapping("api/currency/{code}")
+    public CurrencyDto createCurrency(
+            @RequestBody NewCurrencyPayload payload) {
+        return currencyService.createCurrency(payload);
     }
 
     @PutMapping("/{id}")
     public CurrencyDto updateCurrency(
-            @PathVariable Long id, @RequestBody NewCurrencyPayload payload) {
-        return currencyService.updateCurrency(id, payload);
+            @PathVariable Long id, @RequestBody CurrencyForChange change) {
+        return currencyService.updateCurrency(id, change);
     }
 
     @PatchMapping("/{id}")
-    public CurrencyDto patchCurrency(@PathVariable Long id, @RequestBody NewCurrencyPayload payload) {
-        return currencyService.updateCurrency(id, payload);
+    public CurrencyDto patchCurrency(@PathVariable Long id, @RequestBody CurrencyForChange change) {
+        return currencyService.updateCurrency(id, change);
     }
 }

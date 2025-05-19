@@ -16,20 +16,12 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
     @Query("SELECT er FROM ExchangeRate er " +
            "JOIN FETCH er.baseCurrency " +
            "JOIN FETCH er.targetCurrency")
-    List<ExchangeRate> findAllExchangeRates();
+    List<ExchangeRateDto> findAllExchangeRates();
 
     @Query("SELECT er FROM ExchangeRate er " +
            "WHERE er.baseCurrency.code = :baseCode " +
            "AND er.targetCurrency.code = :targetCode")
     Optional<ExchangeRate> findByCurrencyPair(
-            @Param("baseCode") String baseCode,
-            @Param("targetCode") String targetCode);
-
-    @Query("SELECT CASE WHEN COUNT(er) > 0 THEN true ELSE false END " +
-           "FROM ExchangeRate er " +
-           "WHERE er.baseCurrency.code = :baseCode " +
-           "AND er.targetCurrency.code = :targetCode")
-    boolean existsByCurrencyPair(
             @Param("baseCode") String baseCode,
             @Param("targetCode") String targetCode);
 }

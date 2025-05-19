@@ -3,22 +3,19 @@ package org.mushroom.springbootcurrencyexchanger.controller;
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRateDto;
 import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRatesDto;
-import org.mushroom.springbootcurrencyexchanger.entity.ExchangeRate;
 import org.mushroom.springbootcurrencyexchanger.service.ExchangeRateService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/exchangeRates/")
+@RequestMapping("/api/exchange-rates")
 @RequiredArgsConstructor
 public class ExchangeRateController {
     private final ExchangeRateService exchangeRateService;
 
     @GetMapping("/rates/")
-    public List<ExchangeRate> getAllExchangeRates() {
+    public List<ExchangeRateDto> getAllExchangeRates() {
         return exchangeRateService.getAllExchangeRates();
     }
 
@@ -29,16 +26,10 @@ public class ExchangeRateController {
         return exchangeRateService.getByCurrencyPair(baseCode, targetCode);
     }
 
-    @PostMapping
-    public ResponseEntity<ExchangeRateDto> createExchangeRate(
-            @RequestBody ExchangeRatesDto payload,
-            UriComponentsBuilder uriComponentsBuilder) {
-        ExchangeRateDto created = exchangeRateService.createExchangeRate(payload);
-        return ResponseEntity.created(uriComponentsBuilder
-                        .path("/api/exchangeRates/{baseCode}/{targetCode}")
-                        .buildAndExpand(created.getBaseCurrency().getCode(), created.getTargetCurrency().getCode())
-                        .toUri())
-                .body(created);
+    @PostMapping("/{baseCode}/{targetCode}")
+    public ExchangeRateDto createExchangeRate(
+            @RequestBody ExchangeRatesDto payload) {
+        return exchangeRateService.createExchangeRate(payload);
     }
 
     @PutMapping("/{baseCode}/{targetCode}")
@@ -50,7 +41,7 @@ public class ExchangeRateController {
     }
 
     @DeleteMapping("/{baseCode}/{targetCode}")
-       public void deleteExchangeRate(
+    public void deleteExchangeRate(
             @PathVariable String baseCode,
             @PathVariable String targetCode) {
         exchangeRateService.deleteExchangeRate(baseCode, targetCode);
