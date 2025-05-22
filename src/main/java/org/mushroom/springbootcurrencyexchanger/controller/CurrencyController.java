@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/currencies")
+@RequestMapping("/api/currencies")
 public class CurrencyController {
 
     private final CurrencyService currencyService;
