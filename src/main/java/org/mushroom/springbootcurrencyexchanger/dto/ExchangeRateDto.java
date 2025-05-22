@@ -3,7 +3,6 @@ package org.mushroom.springbootcurrencyexchanger.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mushroom.springbootcurrencyexchanger.entity.Currency;
 import org.mushroom.springbootcurrencyexchanger.entity.ExchangeRate;
 
 
@@ -16,17 +15,12 @@ public class ExchangeRateDto {
     private CurrencyDto targetCurrency;
     private double rate;
 
-    public static ExchangeRateDto fromEntities(
-            ExchangeRate exchangeRate, Currency baseCurrency, Currency targetCurrency) {
-        CurrencyDto baseCurrencyDto = CurrencyDto.fromCurrency(baseCurrency);
-        CurrencyDto targetCurrencyDto = CurrencyDto.fromCurrency(targetCurrency);
-
+    public static ExchangeRateDto fromEntity(ExchangeRate exchangeRate) {
         ExchangeRateDto result = new ExchangeRateDto();
         result.setId(exchangeRate.getId());
-        result.setBaseCurrency(baseCurrencyDto);
-        result.setTargetCurrency(targetCurrencyDto);
+        result.setBaseCurrency(CurrencyDto.fromCurrency(exchangeRate.getBaseCurrency()));
+        result.setTargetCurrency(CurrencyDto.fromCurrency(exchangeRate.getTargetCurrency()));
         result.setRate(exchangeRate.getRate());
         return result;
     }
 }
-

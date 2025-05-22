@@ -1,14 +1,17 @@
 package org.mushroom.springbootcurrencyexchanger.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
-@Table(name = "exchange_rates")
 @Getter
 @Setter
+@Table(name = "exchange_rates")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExchangeRate {
     @Id
@@ -23,6 +26,8 @@ public class ExchangeRate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_currency_id")
     private Currency targetCurrency;
+
+    @Column(name = "rate")
     private double rate;
 
     public ExchangeRate(Currency baseCurrency, Currency targetCurrency, double rate) {

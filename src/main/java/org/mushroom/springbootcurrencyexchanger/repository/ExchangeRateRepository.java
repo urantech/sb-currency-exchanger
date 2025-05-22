@@ -1,6 +1,5 @@
 package org.mushroom.springbootcurrencyexchanger.repository;
 
-import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRateDto;
 import org.mushroom.springbootcurrencyexchanger.entity.ExchangeRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,14 +15,10 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
     @Query("SELECT er FROM ExchangeRate er " +
            "JOIN FETCH er.baseCurrency " +
            "JOIN FETCH er.targetCurrency")
-    List<ExchangeRateDto> findAllExchangeRates();
+    List<ExchangeRate> findAllFetchFields();
 
     @Query("SELECT er FROM ExchangeRate er " +
            "WHERE er.baseCurrency.code = :baseCode " +
            "AND er.targetCurrency.code = :targetCode")
-    Optional<ExchangeRate> findByCurrencyPair(
-            @Param("baseCode") String baseCode,
-            @Param("targetCode") String targetCode);
+    Optional<ExchangeRate> findByCurrencyPair(@Param("baseCode") String baseCode, @Param("targetCode") String targetCode);
 }
-
-

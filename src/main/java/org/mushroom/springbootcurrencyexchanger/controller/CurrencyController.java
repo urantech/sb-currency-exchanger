@@ -2,48 +2,40 @@ package org.mushroom.springbootcurrencyexchanger.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.CurrencyDto;
-import org.mushroom.springbootcurrencyexchanger.dto.NewCurrencyPayload;
-import org.mushroom.springbootcurrencyexchanger.dto.CurrencyForChange;
 import org.mushroom.springbootcurrencyexchanger.service.CurrencyService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/currencies")
 @RequiredArgsConstructor
+@RequestMapping("api/currencies")
 public class CurrencyController {
+
     private final CurrencyService currencyService;
 
     @GetMapping
-    public List<CurrencyDto> getAllCurrencies() {
+    public List<CurrencyDto> getMany() {
         return currencyService.getAllCurrencies();
     }
 
-    @GetMapping("/{code}")
-    public CurrencyDto getCurrencyByCode(@PathVariable String code) {
-        return currencyService.getByCodeCurrency(code);
+    @GetMapping("/currency/{code}")
+    public CurrencyDto getOne(@PathVariable String code) {
+        return currencyService.getCurrencyByCode(code);
+    }
+
+    @PostMapping
+    public CurrencyDto create(@RequestBody CurrencyDto dto) {
+        return currencyService.create(dto);
+    }
+
+    @PutMapping
+    public CurrencyDto update(@RequestBody CurrencyDto dto) {
+        return currencyService.update(dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCurrency(@PathVariable Long id) {
-        currencyService.deleteCurrencyById(id);
-    }
-
-    @PostMapping("api/currency/{code}")
-    public CurrencyDto createCurrency(
-            @RequestBody NewCurrencyPayload payload) {
-        return currencyService.createCurrency(payload);
-    }
-
-    @PutMapping("/{id}")
-    public CurrencyDto updateCurrency(
-            @PathVariable Long id, @RequestBody CurrencyForChange change) {
-        return currencyService.updateCurrency(id, change);
-    }
-
-    @PatchMapping("/{id}")
-    public CurrencyDto patchCurrency(@PathVariable Long id, @RequestBody CurrencyForChange change) {
-        return currencyService.updateCurrency(id, change);
+    public void delete(@PathVariable Long id) {
+        currencyService.deleteById(id);
     }
 }

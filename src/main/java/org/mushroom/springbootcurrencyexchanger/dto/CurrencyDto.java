@@ -1,13 +1,9 @@
 package org.mushroom.springbootcurrencyexchanger.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.mushroom.springbootcurrencyexchanger.entity.Currency;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 public class CurrencyDto {
     private Long id;
     private String code;

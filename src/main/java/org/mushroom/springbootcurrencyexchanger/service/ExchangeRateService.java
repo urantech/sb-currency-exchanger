@@ -1,6 +1,5 @@
 package org.mushroom.springbootcurrencyexchanger.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRateDto;
 import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRatesDto;
@@ -19,59 +18,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExchangeRateService {
 
-    private final ExchangeRateRepository exchangeRateRepository;
     private final CurrencyRepository currencyRepository;
-    private final ExchangeRateValidator exchangeRateValidator;
+    private final ExchangeRateRepository exchangeRateRepository;
 
     public List<ExchangeRateDto> getAllExchangeRates() {
-        return exchangeRateRepository.findAllExchangeRates();
+        return exchangeRateRepository.findAllFetchFields().stream()
+                .map(ExchangeRateDto::fromEntity)
+                .toList();
     }
 
     public ExchangeRateDto getByCurrencyPair(String baseCode, String targetCode) {
-        exchangeRateValidator.validateCurrencyPair(baseCode, targetCode);
-        ExchangeRate rate = exchangeRateRepository
-                .findByCurrencyPair(baseCode.toUpperCase(), targetCode.toUpperCase())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Курс для пары " + baseCode + "/" + targetCode + " не найден"));
-        return ExchangeRateDto.fromEntities(rate, rate.getBaseCurrency(), rate.getTargetCurrency());
+        ExchangeRateValidator.validateCurrencyPair(baseCode, targetCode);
+        ExchangeRate rate = exchangeRateRepository.findByCurrencyPair(baseCode.toUpperCase(), targetCode.toUpperCase())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Курс для пары " + baseCode + "/" + targetCode + " не найден"));
+        return ExchangeRateDto.fromEntity(rate);
     }
 
-    public ExchangeRateDto createExchangeRate(ExchangeRatesDto payload) {
-        exchangeRateValidator.validateCodes(payload);
+    public ExchangeRateDto create(ExchangeRatesDto payload) {
+        ExchangeRateValidator.validateCodes(payload);
 
         Currency baseCurrency = currencyRepository.findByCode(payload.getBaseCurrencyCode().toUpperCase())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Базовая валюта " + payload.getBaseCurrencyCode() + " не найдена"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Базовая валюта " + payload.getBaseCurrencyCode() + " не найдена"));
 
         Currency targetCurrency = currencyRepository.findByCode(payload.getTargetCurrencyCode().toUpperCase())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Целевая валюта " + payload.getTargetCurrencyCode() + " не найдена"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Целевая валюта " + payload.getTargetCurrencyCode() + " не найдена"));
 
         ExchangeRate newRate = new ExchangeRate(baseCurrency, targetCurrency, payload.getRate());
         ExchangeRate saved = exchangeRateRepository.save(newRate);
-        return ExchangeRateDto.fromEntities(saved, saved.getBaseCurrency(), saved.getTargetCurrency());
+        return ExchangeRateDto.fromEntity(saved);
     }
 
-    public ExchangeRateDto updateExchangeRate(String baseCode, String targetCode, ExchangeRatesDto payload) {
-        exchangeRateValidator.validateCurrencyPair(baseCode, targetCode);
+    public ExchangeRateDto update(ExchangeRatesDto dto) {
+        ExchangeRate existingRate = exchangeRateRepository.findById(dto.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Курс для пары не найден"));
+        Currency baseCurrency = currencyRepository.findByCode(dto.getBaseCurrencyCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Валюта не найдена"));
+        Currency targetCurrency = currencyRepository.findByCode(dto.getTargetCurrencyCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Валюта не найдена"));
 
-        ExchangeRate existingRate = exchangeRateRepository
-                .findByCurrencyPair(baseCode.toUpperCase(), targetCode.toUpperCase())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Курс для пары " + baseCode + "/" + targetCode + " не найден"));
-
-        existingRate.setRate(payload.getRate());
+        existingRate.setBaseCurrency(baseCurrency);
+        existingRate.setTargetCurrency(targetCurrency);
+        existingRate.setRate(dto.getRate());
         ExchangeRate updated = exchangeRateRepository.save(existingRate);
-        return ExchangeRateDto.fromEntities(updated, updated.getBaseCurrency(), updated.getTargetCurrency());
+        return ExchangeRateDto.fromEntity(updated);
     }
 
-    public void deleteExchangeRate(String baseCode, String targetCode) {
-        exchangeRateValidator.validateCurrencyPair(baseCode, targetCode);
-        ExchangeRate rate = exchangeRateRepository
-                .findByCurrencyPair(baseCode.toUpperCase(), targetCode.toUpperCase())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Курс для пары " + baseCode + "/" + targetCode + " не найден"));
-        exchangeRateRepository.delete(rate);
+    public void deleteById(Long id) {
+        exchangeRateRepository.deleteById(id);
     }
 }

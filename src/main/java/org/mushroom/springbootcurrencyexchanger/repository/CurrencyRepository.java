@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
+
     @Query("SELECT c FROM Currency c WHERE c.code = :code")
     Optional<Currency> findByCode(String code);
 }

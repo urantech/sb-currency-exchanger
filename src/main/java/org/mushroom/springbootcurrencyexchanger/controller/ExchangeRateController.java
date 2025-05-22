@@ -9,41 +9,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/exchange-rates")
 @RequiredArgsConstructor
+@RequestMapping("/api/exchangeRates")
 public class ExchangeRateController {
+
     private final ExchangeRateService exchangeRateService;
 
-    @GetMapping("/rates/")
-    public List<ExchangeRateDto> getAllExchangeRates() {
+    @GetMapping
+    public List<ExchangeRateDto> getMany() {
         return exchangeRateService.getAllExchangeRates();
     }
 
     @GetMapping("/{baseCode}/{targetCode}")
-    public ExchangeRateDto getExchangeRate(
-            @PathVariable String baseCode,
-            @PathVariable String targetCode) {
+    public ExchangeRateDto getOne(@PathVariable String baseCode, @PathVariable String targetCode) {
         return exchangeRateService.getByCurrencyPair(baseCode, targetCode);
     }
 
-    @PostMapping("/{baseCode}/{targetCode}")
-    public ExchangeRateDto createExchangeRate(
-            @RequestBody ExchangeRatesDto payload) {
-        return exchangeRateService.createExchangeRate(payload);
+    @PostMapping
+    public ExchangeRateDto create(@RequestBody ExchangeRatesDto dto) {
+        return exchangeRateService.create(dto);
     }
 
-    @PutMapping("/{baseCode}/{targetCode}")
-    public ExchangeRateDto updateExchangeRate(
-            @PathVariable String baseCode,
-            @PathVariable String targetCode,
-            @RequestBody ExchangeRatesDto payload) {
-        return exchangeRateService.updateExchangeRate(baseCode, targetCode, payload);
+    @PutMapping
+    public ExchangeRateDto update(@RequestBody ExchangeRatesDto dto) {
+        return exchangeRateService.update(dto);
     }
 
-    @DeleteMapping("/{baseCode}/{targetCode}")
-    public void deleteExchangeRate(
-            @PathVariable String baseCode,
-            @PathVariable String targetCode) {
-        exchangeRateService.deleteExchangeRate(baseCode, targetCode);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        exchangeRateService.deleteById(id);
     }
 }
