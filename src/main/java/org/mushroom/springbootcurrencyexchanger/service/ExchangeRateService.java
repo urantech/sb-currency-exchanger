@@ -49,7 +49,7 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateDto update(ExchangeRatesDto dto) {
-        ExchangeRate existingRate = exchangeRateRepository.findById(dto.getId())
+        ExchangeRate existingRate = exchangeRateRepository.findByIdWithCurrencies(dto.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Курс для пары не найден"));
         Currency baseCurrency = currencyRepository.findByCode(dto.getBaseCurrencyCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Валюта не найдена"));
@@ -60,7 +60,10 @@ public class ExchangeRateService {
         existingRate.setTargetCurrency(targetCurrency);
         existingRate.setRate(dto.getRate());
         ExchangeRate updated = exchangeRateRepository.save(existingRate);
-        return ExchangeRateDto.fromEntity(updated);
+        return ExchangeRateDto.fromEntity(
+                exchangeRateRepository.findByIdWithCurrencies(updated.getId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Курс для пары не найден"))
+        );
     }
 
     public void deleteById(Long id) {

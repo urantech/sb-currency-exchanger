@@ -18,7 +18,15 @@ public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long
     List<ExchangeRate> findAllFetchFields();
 
     @Query("SELECT er FROM ExchangeRate er " +
-           "WHERE er.baseCurrency.code = :baseCode " +
-           "AND er.targetCurrency.code = :targetCode")
+           "JOIN FETCH er.baseCurrency bc " +
+           "JOIN FETCH er.targetCurrency tc " +
+           "WHERE bc.code = :baseCode " +
+           "AND tc.code = :targetCode")
     Optional<ExchangeRate> findByCurrencyPair(@Param("baseCode") String baseCode, @Param("targetCode") String targetCode);
+
+    @Query("SELECT er FROM ExchangeRate er " +
+           "JOIN FETCH er.baseCurrency " +
+           "JOIN FETCH er.targetCurrency " +
+           "WHERE er.id = :id")
+    Optional<ExchangeRate> findByIdWithCurrencies(@Param("id") Long id);
 }

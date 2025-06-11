@@ -1,6 +1,7 @@
 package org.mushroom.springbootcurrencyexchanger.controller;
 
 import org.junit.jupiter.api.Test;
+import org.mushroom.springbootcurrencyexchanger.CurrencyController;
 import org.mushroom.springbootcurrencyexchanger.dto.CurrencyDto;
 import org.mushroom.springbootcurrencyexchanger.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ class CurrencyControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private CurrencyService currencyService;
+
 
     @Test
     void shouldReturnOk_whenGetAllCurrencies() throws Exception {
@@ -73,6 +75,29 @@ class CurrencyControllerTest {
                 """;
 
         //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/currencies")
+                        .content(dto)
+                        .contentType(MediaType.APPLICATION_JSON))
+                // then
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void givenInvalidDtoMissingFullName_whenCreateCurrency_thenReturnBadRequest() throws Exception {
+        // given
+        String dto = """
+                {
+                    "id": null,
+                    "code": "someCode",
+                    "fullName": null,
+                    "sign": "someSign"
+                }
+                """;
+
+        when(currencyService.create(any(CurrencyDto.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Full name is required"));
+
+        // when
         mockMvc.perform(MockMvcRequestBuilders.post("/api/currencies")
                         .content(dto)
                         .contentType(MediaType.APPLICATION_JSON))
