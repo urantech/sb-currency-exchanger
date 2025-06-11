@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///integration-test-db
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      schema-locations: classpath:db.schema/schema.sql
+  liquibase:
+    enabled: false

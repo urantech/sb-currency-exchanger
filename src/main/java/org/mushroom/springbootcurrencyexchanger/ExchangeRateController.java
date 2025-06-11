@@ -1,4 +1,4 @@
-package org.mushroom.springbootcurrencyexchanger.controller;
+package org.mushroom.springbootcurrencyexchanger;
 
 import lombok.RequiredArgsConstructor;
 import org.mushroom.springbootcurrencyexchanger.dto.ExchangeRateDto;
